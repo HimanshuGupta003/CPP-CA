@@ -30,6 +30,10 @@ This project provides a small console application for recording article details 
 9. Testing and demonstration
 10. Phase plan, standards and references
 
+## Project repository
+
+GitHub: https://github.com/HimanshuGupta003/CPP-CA
+
 <!-- PAGE -->
 
 # Problem and objectives
@@ -51,6 +55,7 @@ The user is an editor operating the program on one computer. The main entity is 
 - Keep related article data private within a class.
 - Demonstrate static members, an inline accessor and a friend function.
 - Use an array of objects, an object pointer, the this pointer and standard strings.
+- Maintain version-controlled progress at https://github.com/HimanshuGupta003/CPP-CA
 
 ## Example use
 
@@ -298,7 +303,7 @@ Later-phase features are planned, not implemented. A separate fixed-size record 
 
 ## Technical implementation and standards
 
-The implementation strictly adheres to standard C++11 specifications using core standard library headers (`<iostream>`, `<string>`, `<sstream>`). Robust encapsulation is enforced through private member fields, validated accessors, and const references for non-modifying routines. Data integrity is maintained with boundary validation, input trimming, and unique key checks.
+The implementation strictly adheres to standard C++11 specifications using core standard library headers (`<iostream>`, `<string>`, `<sstream>`). Robust encapsulation is enforced through private member fields, validated accessors, and const references for non-modifying routines. Data integrity is maintained with boundary validation, input trimming, and unique key checks. Complete source code and phase milestones are version-controlled at https://github.com/HimanshuGupta003/CPP-CA.
 
 ## Academic references
 
