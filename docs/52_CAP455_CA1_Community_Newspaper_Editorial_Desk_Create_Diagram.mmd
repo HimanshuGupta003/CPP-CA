@@ -1,0 +1,11 @@
+flowchart TD
+    A([Add selected]) --> B{Count is 50?}
+    B -->|Yes| C[Show full message; return to menu]
+    B -->|No| D[/Read valid article ID/]
+    D --> E{ID already saved?}
+    E -->|Yes| F[Show duplicate message]
+    F --> D
+    E -->|No| G[/Read valid title, reporter, category and word count/]
+    G --> H[Point to articles at saved count]
+    H --> I[Assign fields with create; increase count]
+    I --> J([Show success; return to menu])

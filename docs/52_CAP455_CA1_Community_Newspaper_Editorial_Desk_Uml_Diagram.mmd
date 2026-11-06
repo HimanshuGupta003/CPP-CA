@@ -1,0 +1,17 @@
+classDiagram
+class Article {
+  -int articleId
+  -string title
+  -string reporter
+  -string category
+  -int wordCount
+  -int totalArticles$ 
+  +create(int, const string&, const string&, const string&, int) void
+  +getId() int
+  +getCount()$ int
+}
+class DisplayFunction {
+  <<friend function>>
+  displayArticle(const Article&) void
+}
+DisplayFunction ..> Article : friend access

@@ -1,0 +1,11 @@
+flowchart TD
+    A([Start]) --> B[Create Article array; saved count starts at 0]
+    B --> C[/Show menu and read a valid choice/]
+    C --> D{Choice?}
+    D -->|1| E[Call addArticle]
+    D -->|2| F[Call viewArticles]
+    D -->|3| G([Exit; records discarded])
+    E -->|Input available| C
+    F --> C
+    C -->|Input ended| G
+    E -->|Input ended| G

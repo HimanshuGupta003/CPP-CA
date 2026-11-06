@@ -1,0 +1,46 @@
+Community Newspaper Editorial Desk - CA1
+Records are kept in memory only and are lost on exit.
+
+1. Add article
+2. View all articles
+3. Exit
+Choice: No articles available.
+
+1. Add article
+2. View all articles
+3. Exit
+Choice: Article ID (1-9999): Title (1-80 characters): Reporter (1-40 characters): Categories: 1. Local News  2. Education  3. Events
+Category (1-3): Word count (1-5000): Article added successfully.
+
+1. Add article
+2. View all articles
+3. Exit
+Choice: Article ID (1-9999): This ID already exists. Enter a different ID.
+Article ID (1-9999): Title (1-80 characters): Reporter (1-40 characters): Categories: 1. Local News  2. Education  3. Events
+Category (1-3): Word count (1-5000): Article added successfully.
+
+1. Add article
+2. View all articles
+3. Exit
+Choice: 
+Total articles: 2
+
+Article ID : 101
+Title      : Cleanliness Drive in Sector 4
+Reporter   : Neha Sharma
+Category   : Local News
+Word count : 350
+----------------------------------------
+
+Article ID : 102
+Title      : School Science Exhibition
+Reporter   : Aman Verma
+Category   : Education
+Word count : 600
+----------------------------------------
+
+1. Add article
+2. View all articles
+3. Exit
+Choice: 
+Program closed. In-memory records have been cleared.

@@ -1,0 +1,24 @@
+test_01_empty_list (__main__.EditorialDeskTests.test_01_empty_list) ... ok
+test_02_create_and_read (__main__.EditorialDeskTests.test_02_create_and_read) ... ok
+test_03_duplicate_id_retry (__main__.EditorialDeskTests.test_03_duplicate_id_retry) ... ok
+test_04_invalid_menu (__main__.EditorialDeskTests.test_04_invalid_menu) ... ok
+test_05_invalid_ids (__main__.EditorialDeskTests.test_05_invalid_ids) ... ok
+test_06_blank_and_long_title (__main__.EditorialDeskTests.test_06_blank_and_long_title) ... ok
+test_07_blank_and_long_reporter (__main__.EditorialDeskTests.test_07_blank_and_long_reporter) ... ok
+test_08_invalid_category (__main__.EditorialDeskTests.test_08_invalid_category) ... ok
+test_09_invalid_word_count (__main__.EditorialDeskTests.test_09_invalid_word_count) ... ok
+test_10_numeric_boundaries (__main__.EditorialDeskTests.test_10_numeric_boundaries) ... ok
+test_11_text_length_boundaries (__main__.EditorialDeskTests.test_11_text_length_boundaries) ... ok
+test_12_outer_spaces_are_trimmed (__main__.EditorialDeskTests.test_12_outer_spaces_are_trimmed) ... ok
+test_13_all_categories (__main__.EditorialDeskTests.test_13_all_categories) ... ok
+test_14_capacity_limit (__main__.EditorialDeskTests.test_14_capacity_limit) ... ok
+test_15_view_does_not_change_count (__main__.EditorialDeskTests.test_15_view_does_not_change_count) ... ok
+test_16_restart_clears_records (__main__.EditorialDeskTests.test_16_restart_clears_records) ... ok
+test_17_end_of_input_at_menu (__main__.EditorialDeskTests.test_17_end_of_input_at_menu) ... ok
+test_18_end_of_input_during_create (__main__.EditorialDeskTests.test_18_end_of_input_during_create) ... ok
+test_19_sample_file (__main__.EditorialDeskTests.test_19_sample_file) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.417s
+
+OK
