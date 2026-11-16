@@ -1,100 +1,96 @@
-# Community Newspaper Editorial Desk - CA 1
+# Community Newspaper Editorial Desk — CA 2 (Persist & Search)
 
 **Himanshu Gupta | Roll 52 | Registration 12602516 | Section D1P2635**  
 CAP455: Object Oriented Programming using C++ | Session 2026-27  
-**GitHub Repository:** [https://github.com/HimanshuGupta003/CPP-CA](https://github.com/HimanshuGupta003/CPP-CA)
+**GitHub Repository:** [https://github.com/HimanshuGupta003/CPP-CA](https://github.com/HimanshuGupta003/CPP-CA)  
 
-## Start here
+---
 
-1. Open the ten-page proposal PDF in `docs`. It contains the problem, scope, data dictionary, UML, flowcharts and phase plan.
-2. Double-click `52_CAP455_CA1_Community_Newspaper_Editorial_Desk_Run.bat` to compile and run on Windows with g++ installed.
-3. Read the commented source in `src`, then the viva guide in `docs`.
-4. Practise the demo and small code changes in the viva guide before presenting.
+## Overview
 
-## What the program does
+This project implements **Phase 2 (CA 2)** of the Community Newspaper Editorial Desk application, advancing the in-memory prototype of CA 1 into a persistent, random-access binary file management system using C++ **Unit III** concepts.
 
-An editor enters an article ID, title, reporter, category and word count. The program stores up to 50 article records and displays all saved records. It checks duplicate IDs, numeric ranges, blank fields and text lengths. Records are stored only in memory and disappear when the program closes, as required for CA 1.
+Records are written to and read from a fixed-size binary data file (`data/articles.dat`). The application supports adding articles, reading all saved articles sequentially, performing random-access searches using `seekg`, and performing in-place updates using `seekp`. Data fully survives program termination and restarts.
 
-Menu: **1. Add article / 2. View all articles / 3. Exit**.
+---
 
-The title, reporter and word count are metadata entered by the editor. The program does not store the article body or calculate its word count. The three categories and size limits are proposed design choices, not requirements quoted from the assignment.
+## Required Unit III Features Implemented
 
-## Build and run manually
+| CA 2 Requirement | Implementation in Source Code |
+| :--- | :--- |
+| **Default Constructor** | `Article()` initializes zero/empty members for object slots |
+| **Parameterized Constructor** | `Article(int, string, string, string, int)` initializes via member initializer list and updates static counter |
+| **Copy Constructor** | `Article(const Article&)` performs member-wise copy with independent object state |
+| **Destructor** | `~Article()` handles object lifecycle and cleanup |
+| **Fixed-Size Binary Records** | `struct ArticleRecord` (152 bytes) prevents `std::string` pointer corruption on disk |
+| **File Persistence** | Binary file handling via `fstream` (`ios::binary`, `ios::in`, `ios::out`, `ios::app`) |
+| **Search with `seekg`** | Random-access `inFile.seekg(offset, ios::beg)` directly jumps to record boundary by byte offset |
+| **Update with `seekp`** | In-place update `file.seekp(offset, ios::beg)` overwrites specific record without rewriting the file |
+| **Data Survives Restart** | `loadRecordsFromFile()` restores all saved records on application startup |
 
-Run these commands from this project folder in PowerShell or a terminal. A standard C++11 compiler is enough. The project uses only `<iostream>`, `<sstream>` and `<string>`.
+*(Retained from CA 1: static counter `totalArticles`, inline accessor `getId()`, friend function `displayArticle()`, and robust fail-safe input validation).*
+
+---
+
+## Folder Layout
+
+```text
+CAP455_CA2_Community_Newspaper_Editorial_Desk/
+├── 52_CAP455_CA2_Community_Newspaper_Editorial_Desk_Run.bat  # 1-click build & run script (Windows)
+├── README.md                                                 # Phase 2 documentation and build guide
+├── .gitignore                                                # Excludes build/ and executables
+├── docs/
+│   └── 52_CAP455_CA2_Community_Newspaper_Editorial_Desk_Viva.md        # Comprehensive viva Q&A
+├── src/
+│   └── 52_CAP455_CA2_Community_Newspaper_Editorial_Desk.cpp           # Main C++ source code
+├── data/
+│   ├── articles.dat                                          # Binary fixed-size database file
+│   ├── 52_CAP455_CA2_Community_Newspaper_Editorial_Desk_Sample_Input.txt
+│   └── 52_CAP455_CA2_Community_Newspaper_Editorial_Desk_Sample_Output.txt
+└── tests/
+    └── 52_CAP455_CA2_Community_Newspaper_Editorial_Desk_Test_Cases.md  # Test evidence table
+```
+
+---
+
+## Build and Run Instructions
+
+### Windows (PowerShell / Command Prompt)
+
+You can double-click `52_CAP455_CA2_Community_Newspaper_Editorial_Desk_Run.bat` or run:
 
 ```powershell
 mkdir build -ErrorAction SilentlyContinue
-g++ -std=c++11 -Wall -Wextra -pedantic src/52_CAP455_CA1_Community_Newspaper_Editorial_Desk.cpp -o build/newspaper_ca1.exe
-.\build\newspaper_ca1.exe
+g++ -std=c++11 -Wall -Wextra -pedantic "src\52_CAP455_CA2_Community_Newspaper_Editorial_Desk.cpp" -o "build\newspaper_ca2.exe"
+.\build\newspaper_ca2.exe
 ```
 
-On Linux/macOS, create `build` with `mkdir -p build`, compile with the same options using `-o build/newspaper_ca1`, and run `./build/newspaper_ca1`.
+### Linux / macOS
 
-## Sample demonstration
+```bash
+mkdir -p build
+g++ -std=c++11 -Wall -Wextra -pedantic src/52_CAP455_CA2_Community_Newspaper_Editorial_Desk.cpp -o build/newspaper_ca2
+./build/newspaper_ca2
+```
 
-Enter the lines in `data/52_CAP455_CA1_Community_Newspaper_Editorial_Desk_Sample_Input.txt`, or replay them in PowerShell after compiling:
+---
+
+## Automated Demonstration Replay
+
+To execute the verified sample session using the prepared input file:
 
 ```powershell
-Get-Content data/52_CAP455_CA1_Community_Newspaper_Editorial_Desk_Sample_Input.txt | .\build\newspaper_ca1.exe
+Get-Content data/52_CAP455_CA2_Community_Newspaper_Editorial_Desk_Sample_Input.txt | .\build\newspaper_ca2.exe
 ```
 
-The sample first shows an empty list, adds ID 101, rejects another 101, accepts 102 and lists both articles. `data` also includes the actual output captured during verification. These files are demo inputs and evidence; the application does not load or save article files in CA 1.
+---
 
-## Required concepts and where to find them
+## Phase Roadmap
 
-| CA 1 concept | Implementation |
-| --- | --- |
-| Class and objects | `Article`; `Article articles[MAX_ARTICLES]` |
-| Encapsulation | Article fields are private |
-| Static data member | `Article::totalArticles`, shared count of saved records |
-| Static member function | `Article::getCount()` |
-| Inline function | Small `getId()` accessor |
-| Friend function | `displayArticle(const Article&)` reads private fields |
-| Array of objects | Fixed array with 50 slots |
-| Pointer to object | `Article* current = &articles[Article::getCount()]` |
-| `this` pointer | Assignments such as `this->title = title` |
-| Standard strings | Title, reporter and category use `std::string` |
-| References | Output parameters in input helpers; const reference for display |
-| Create and Read | `addArticle()` and `viewArticles()` |
-| Validation | `readInt()`, `readText()`, duplicate and capacity checks |
+| Phase | Status | Key Topics |
+| :--- | :---: | :--- |
+| **CA 1** | Completed | Entity class, static members, inline, friend, in-memory array, validation, 10-page proposal |
+| **CA 2** | **Current** | **Default/parameterized/copy constructors, destructor, fstream binary persistence, seekg, seekp** |
+| **CA 3** | Planned | Base + derived inheritance, operator overloading (`<<`, `>>`, `==`, `<`), dynamic memory, virtual functions |
+| **CA 4** | Planned | Full CRUD, custom exception handling, templates, STL containers/algorithms, CSV export |
 
-## Folder layout
-
-```text
-docs/    Ten-page proposal, editable proposal, diagrams and viva notes
-src/     One C++ source file
-data/    Sample keyboard input and captured program output
-tests/   Test runner and recorded normal/invalid/boundary results
-build/   Local executable, created when compiling; excluded from Git
-README.md
-```
-
-## Verification
-
-The Python test runner is an optional development tool, not part of the C++ application. With Python 3 installed, run it from this folder after compiling:
-
-```powershell
-python tests/52_CAP455_CA1_Community_Newspaper_Editorial_Desk_Test.py build/newspaper_ca1.exe
-```
-
-The recorded test results in `tests` identify the compiler, checks and actual outcome. No Python installation is needed to run the C++ program or follow the manual test table.
-
-## Features by phase
-
-| Phase | Scope |
-| --- | --- |
-| CA 1, implemented | In-memory Create and Read, class features, fixed array, pointers, strings and validation |
-| CA 2, planned | Constructors/destructor; binary fixed-size records; persistence; seekg search and seekp update |
-| CA 3, planned | Base class and two derived classes; required operators and conversion; dynamic memory, virtual functions and confirmed update/delete |
-| CA 4, planned | Full CRUD; exceptions; function and class templates; STL vector/list and algorithms; CSV export |
-
-Do not write a raw `Article` object to a binary file in CA 2: `std::string` has internal storage that is not a portable fixed-size record. Plan a separate fixed-size file record representation.
-
-## References and standards
-
-- **C++ Standard**: ISO/IEC 14882:2011 (C++11), compiled with standard MinGW GCC / g++ flags `-std=c++11 -Wall -Wextra -pedantic`.
-- **References**: Bjarne Stroustrup, *The C++ Programming Language* (4th Ed.); Robert Lafore, *Object-Oriented Programming in C++* (4th Ed.).
-- **Project Scope**: CA 1 implementation covering Units I-II entity design, in-memory array storage, pointers, and data validation.
-
-A local Git repository is prepared for tracking future phase progress. Keep meaningful commits as you revise and expand for subsequent phases.
