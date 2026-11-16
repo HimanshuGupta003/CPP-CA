@@ -1,0 +1,220 @@
+========================================================
+ COMMUNITY NEWSPAPER EDITORIAL DESK - CA 2
+ Himanshu Gupta | Roll 52 | CAP455 Unit III
+========================================================
+[PERSISTENCE] Successfully restored 3 article(s) from data/articles.dat.
+Data has survived previous program restart.
+
+---------------- MENU ----------------
+1. Add Article (Append to binary file)
+2. View All Articles (Read from file)
+3. Search Article by ID (seekg demonstration)
+4. Update Article by ID (seekp demonstration)
+5. Demonstrate Constructors & Destructor
+6. Exit
+--------------------------------------
+Enter your choice (1-6): 
+========================================
+TOTAL SAVED ARTICLES: 3
+========================================
+----------------------------------------
+Article ID : 101
+Title      : Cleanliness Drive in Sector 4
+Reporter   : Neha Sharma
+Category   : Local News
+Word Count : 350
+----------------------------------------
+
+----------------------------------------
+Article ID : 102
+Title      : Annual Science Exhibition
+Reporter   : Aman Verma
+Category   : Education
+Word Count : 600
+----------------------------------------
+
+----------------------------------------
+Article ID : 103
+Title      : Heritage Walk and Photo Fest
+Reporter   : Priya Singh
+Category   : Events
+Word Count : 420
+----------------------------------------
+
+---------------- MENU ----------------
+1. Add Article (Append to binary file)
+2. View All Articles (Read from file)
+3. Search Article by ID (seekg demonstration)
+4. Update Article by ID (seekp demonstration)
+5. Demonstrate Constructors & Destructor
+6. Exit
+--------------------------------------
+Enter your choice (1-6): Article ID (1-9999): Title (1-80 characters): Reporter (1-40 characters): Categories: 1. Local News  2. Education  3. Events
+Category (1-3): Word count (1-5000): 
+Article successfully added and persisted to data/articles.dat.
+
+---------------- MENU ----------------
+1. Add Article (Append to binary file)
+2. View All Articles (Read from file)
+3. Search Article by ID (seekg demonstration)
+4. Update Article by ID (seekp demonstration)
+5. Demonstrate Constructors & Destructor
+6. Exit
+--------------------------------------
+Enter your choice (1-6): Article ID (1-9999): This ID already exists. Enter a unique ID.
+Article ID (1-9999): Title (1-80 characters): Reporter (1-40 characters): Categories: 1. Local News  2. Education  3. Events
+Category (1-3): Word count (1-5000): 
+Article successfully added and persisted to data/articles.dat.
+
+---------------- MENU ----------------
+1. Add Article (Append to binary file)
+2. View All Articles (Read from file)
+3. Search Article by ID (seekg demonstration)
+4. Update Article by ID (seekp demonstration)
+5. Demonstrate Constructors & Destructor
+6. Exit
+--------------------------------------
+Enter your choice (1-6): Enter Article ID to search: 
+[RECORD FOUND VIA seekg]
+File Byte Offset : 456 bytes
+Record Index     : 3
+----------------------------------------
+Article ID : 104
+Title      : Community Yoga Camp
+Reporter   : Rajesh Kumar
+Category   : Events
+Word Count : 300
+----------------------------------------
+
+---------------- MENU ----------------
+1. Add Article (Append to binary file)
+2. View All Articles (Read from file)
+3. Search Article by ID (seekg demonstration)
+4. Update Article by ID (seekp demonstration)
+5. Demonstrate Constructors & Destructor
+6. Exit
+--------------------------------------
+Enter your choice (1-6): Enter Article ID to update: 
+Current details for Article 101:
+----------------------------------------
+Article ID : 101
+Title      : Cleanliness Drive in Sector 4
+Reporter   : Neha Sharma
+Category   : Local News
+Word Count : 350
+----------------------------------------
+
+Enter updated values:
+New Title (1-80 characters): New Reporter (1-40 characters): Categories: 1. Local News  2. Education  3. Events
+New Category (1-3): New Word count (1-5000): 
+[SUCCESS] Article 101 updated in-place via seekp at byte offset 0.
+
+---------------- MENU ----------------
+1. Add Article (Append to binary file)
+2. View All Articles (Read from file)
+3. Search Article by ID (seekg demonstration)
+4. Update Article by ID (seekp demonstration)
+5. Demonstrate Constructors & Destructor
+6. Exit
+--------------------------------------
+Enter your choice (1-6): 
+========================================
+CONSTRUCTOR & DESTRUCTOR DEMONSTRATION
+========================================
+
+1. Demonstrating Default Constructor:
+   Created defaultObj (ID: 0, Title: "")
+
+2. Demonstrating Parameterized Constructor:
+   Created paramObj via parameterized constructor:
+----------------------------------------
+Article ID : 999
+Title      : Demo Headline
+Reporter   : Staff Reporter
+Category   : Education
+Word Count : 450
+----------------------------------------
+
+3. Demonstrating Copy Constructor:
+   Created copyObj as an exact copy of paramObj:
+----------------------------------------
+Article ID : 999
+Title      : Demo Headline
+Reporter   : Staff Reporter
+Category   : Education
+Word Count : 450
+----------------------------------------
+4. Demonstrating Destructor:
+   Objects will be destroyed automatically when leaving scope.
+========================================
+
+---------------- MENU ----------------
+1. Add Article (Append to binary file)
+2. View All Articles (Read from file)
+3. Search Article by ID (seekg demonstration)
+4. Update Article by ID (seekp demonstration)
+5. Demonstrate Constructors & Destructor
+6. Exit
+--------------------------------------
+Enter your choice (1-6): 
+========================================
+TOTAL SAVED ARTICLES: 6
+========================================
+----------------------------------------
+Article ID : 101
+Title      : Sector 4 Mega Cleanliness Drive
+Reporter   : Neha Sharma
+Category   : Local News
+Word Count : 480
+----------------------------------------
+
+----------------------------------------
+Article ID : 102
+Title      : Annual Science Exhibition
+Reporter   : Aman Verma
+Category   : Education
+Word Count : 600
+----------------------------------------
+
+----------------------------------------
+Article ID : 103
+Title      : Heritage Walk and Photo Fest
+Reporter   : Priya Singh
+Category   : Events
+Word Count : 420
+----------------------------------------
+
+----------------------------------------
+Article ID : 104
+Title      : Community Yoga Camp
+Reporter   : Rajesh Kumar
+Category   : Events
+Word Count : 300
+----------------------------------------
+
+----------------------------------------
+Article ID : 105
+Title      : Robotics Workshop
+Reporter   : Anita Rao
+Category   : Education
+Word Count : 500
+----------------------------------------
+
+----------------------------------------
+Article ID : 0
+Title      : 
+Reporter   : 
+Category   : 
+Word Count : 0
+----------------------------------------
+
+---------------- MENU ----------------
+1. Add Article (Append to binary file)
+2. View All Articles (Read from file)
+3. Search Article by ID (seekg demonstration)
+4. Update Article by ID (seekp demonstration)
+5. Demonstrate Constructors & Destructor
+6. Exit
+--------------------------------------
+Enter your choice (1-6): 
+Program closed. All changes remain saved in data/articles.dat.
