@@ -7,117 +7,106 @@
 #include <cstring>
 using namespace std;
 
-const char* DATA_FILE = "data/articles.dat";
-
-// Entity class with fixed-size fields for safe binary file operations
+// Class Article with fixed-size fields for binary file handling
 class Article {
 private:
-    int articleId;
-    char title[60];
-    char reporter[40];
-    char category[30];
-    int wordCount;
-    static int totalArticles; // Static variable to track total records
+    int id;
+    char title[50];
+    char reporter[30];
+    char category[20];
+    int words;
 
 public:
+    static int count; // Static variable to track total articles
+
     // 1. Default Constructor
-    Article() : articleId(0), wordCount(0) {
+    Article() {
+        id = 0;
         strcpy(title, "");
         strcpy(reporter, "");
         strcpy(category, "");
+        words = 0;
     }
 
-    // 2. Parameterized Constructor (using member initializer list)
-    Article(int id, const char* t, const char* r, const char* c, int w)
-        : articleId(id), wordCount(w) {
-        strncpy(title, t, sizeof(title) - 1);
-        title[sizeof(title) - 1] = '\0';
-        strncpy(reporter, r, sizeof(reporter) - 1);
-        reporter[sizeof(reporter) - 1] = '\0';
-        strncpy(category, c, sizeof(category) - 1);
-        category[sizeof(category) - 1] = '\0';
-        totalArticles++;
+    // 2. Parameterized Constructor (with initializer list)
+    Article(int i, const char* t, const char* r, const char* c, int w)
+        : id(i), words(w) {
+        strcpy(title, t);
+        strcpy(reporter, r);
+        strcpy(category, c);
+        count++;
     }
 
-    // 3. Copy Constructor (demonstrates deep copy semantics)
-    Article(const Article& other)
-        : articleId(other.articleId), wordCount(other.wordCount) {
-        strcpy(title, other.title);
-        strcpy(reporter, other.reporter);
-        strcpy(category, other.category);
+    // 3. Copy Constructor (deep copy)
+    Article(const Article &a) {
+        id = a.id;
+        strcpy(title, a.title);
+        strcpy(reporter, a.reporter);
+        strcpy(category, a.category);
+        words = a.words;
     }
 
     // 4. Destructor
-    ~Article() {}
+    ~Article() {
+        // Automatically executes when object is destroyed
+    }
 
-    // Inline accessor
-    inline int getId() const { return articleId; }
+    // Inline function to return ID
+    inline int getId() {
+        return id;
+    }
 
-    // Static member functions
-    static int getCount() { return totalArticles; }
-    static void setCount(int count) { totalArticles = count; }
-
-    // Input data from user
-    void inputData(int id) {
-        articleId = id;
+    // Function to take input from user
+    void input(int newId) {
+        id = newId;
         cout << "Enter Article Title        : ";
-        cin.getline(title, sizeof(title));
+        cin.getline(title, 50);
         cout << "Enter Reporter Name        : ";
-        cin.getline(reporter, sizeof(reporter));
+        cin.getline(reporter, 30);
         cout << "Enter Category (News/Events): ";
-        cin.getline(category, sizeof(category));
+        cin.getline(category, 20);
         cout << "Enter Word Count           : ";
-        cin >> wordCount;
+        cin >> words;
         cin.ignore();
     }
 
-    // Update data for existing record
-    void updateData() {
+    // Function to update details
+    void update() {
         cout << "Enter New Title            : ";
-        cin.getline(title, sizeof(title));
+        cin.getline(title, 50);
         cout << "Enter New Reporter Name    : ";
-        cin.getline(reporter, sizeof(reporter));
+        cin.getline(reporter, 30);
         cout << "Enter New Category         : ";
-        cin.getline(category, sizeof(category));
+        cin.getline(category, 20);
         cout << "Enter New Word Count       : ";
-        cin >> wordCount;
+        cin >> words;
         cin.ignore();
     }
 
-    // Friend function to display private members
-    friend void displayArticle(const Article& a);
+    // Friend function to display private data
+    friend void display(Article a);
 };
 
 // Initialize static member variable
-int Article::totalArticles = 0;
+int Article::count = 0;
 
 // Friend function definition
-void displayArticle(const Article& a) {
-    cout << "\n----------------------------------------\n"
-         << "Article ID : " << a.articleId << "\n"
-         << "Title      : " << a.title << "\n"
-         << "Reporter   : " << a.reporter << "\n"
-         << "Category   : " << a.category << "\n"
-         << "Word Count : " << a.wordCount << "\n"
-         << "----------------------------------------\n";
+void display(Article a) {
+    cout << "\n----------------------------------------";
+    cout << "\nArticle ID : " << a.id;
+    cout << "\nTitle      : " << a.title;
+    cout << "\nReporter   : " << a.reporter;
+    cout << "\nCategory   : " << a.category;
+    cout << "\nWord Count : " << a.words;
+    cout << "\n----------------------------------------\n";
 }
 
-// Helper: Count total records in the binary file
-int countRecords() {
-    ifstream file(DATA_FILE, ios::binary);
-    if (!file) return 0;
-    file.seekg(0, ios::end);
-    int count = file.tellg() / sizeof(Article);
-    file.close();
-    return count;
-}
-
-// Helper: Check if article ID already exists
-bool isDuplicateId(int id) {
-    ifstream file(DATA_FILE, ios::binary);
+// Function to check if ID already exists in file
+bool isDuplicate(int id) {
+    ifstream file("data/articles.dat", ios::binary);
     if (!file) return false;
     Article a;
-    while (file.read((char*)&a, sizeof(Article))) {
+    while (file.read((char*)&a, sizeof(a))) {
         if (a.getId() == id) {
             file.close();
             return true;
@@ -127,231 +116,211 @@ bool isDuplicateId(int id) {
     return false;
 }
 
-// 1. Add Article (Appends fixed-size record to binary file)
+// 1. Add Article (Append to binary file)
 void addArticle() {
     int id;
     cout << "\nEnter Article ID: ";
-    if (!(cin >> id) || id <= 0) {
-        cin.clear();
-        cin.ignore(1000, '\n');
-        cout << "Invalid ID. Enter a positive number.\n";
-        return;
-    }
+    cin >> id;
     cin.ignore();
 
-    if (isDuplicateId(id)) {
+    if (id <= 0) {
+        cout << "Error: ID must be a positive number!\n";
+        return;
+    }
+    if (isDuplicate(id)) {
         cout << "Error: Article ID " << id << " already exists! Use a unique ID.\n";
         return;
     }
 
     Article a;
-    a.inputData(id);
+    a.input(id);
 
-    ofstream file(DATA_FILE, ios::binary | ios::app);
-    if (!file) {
-        cout << "Error opening data file for writing.\n";
-        return;
-    }
-    file.write((char*)&a, sizeof(Article));
+    // Open in binary append mode
+    ofstream file("data/articles.dat", ios::binary | ios::app);
+    file.write((char*)&a, sizeof(a));
     file.close();
 
-    Article::setCount(countRecords());
-    cout << "\n[SUCCESS] Article " << id << " saved to " << DATA_FILE << ".\n";
+    cout << "\n[SUCCESS] Article " << id << " saved to data/articles.dat!\n";
 }
 
-// 2. View All Articles (Sequential binary file read)
-void viewAllArticles() {
-    ifstream file(DATA_FILE, ios::binary);
-    int total = countRecords();
-    if (!file || total == 0) {
-        cout << "\nNo records found in data file.\n";
+// 2. View All Articles (Sequential read from binary file)
+void viewArticles() {
+    ifstream file("data/articles.dat", ios::binary);
+    if (!file) {
+        cout << "\nNo records found in data file!\n";
         return;
     }
-
-    cout << "\n========================================"
-         << "\nTOTAL SAVED ARTICLES: " << total
-         << "\n========================================";
 
     Article a;
-    while (file.read((char*)&a, sizeof(Article))) {
-        displayArticle(a);
+    int total = 0;
+    while (file.read((char*)&a, sizeof(a))) {
+        display(a);
+        total++;
     }
     file.close();
+
+    if (total == 0) {
+        cout << "\nNo records found!\n";
+    } else {
+        cout << "\nTotal Articles Saved: " << total << "\n";
+    }
 }
 
-// 3. Search Article using seekg (Random-access binary search)
-void searchArticleSeekg() {
-    ifstream file(DATA_FILE, ios::binary);
+// 3. Search Article using seekg (Random-access search)
+void searchArticle() {
+    ifstream file("data/articles.dat", ios::binary);
     if (!file) {
-        cout << "\nNo data file found. Add articles first.\n";
+        cout << "\nData file not found!\n";
         return;
     }
 
     int searchId;
     cout << "\nEnter Article ID to search: ";
-    if (!(cin >> searchId)) {
-        cin.clear();
-        cin.ignore(1000, '\n');
-        cout << "Invalid input.\n";
-        return;
-    }
+    cin >> searchId;
     cin.ignore();
 
-    int total = countRecords();
-    bool found = false;
+    // Calculate total records using seekg and tellg
+    file.seekg(0, ios::end);
+    int totalBytes = file.tellg();
+    int totalRecords = totalBytes / sizeof(Article);
+
     Article a;
+    bool found = false;
 
-    // Direct random-access positioning using seekg
-    for (int i = 0; i < total; i++) {
-        streampos offset = i * sizeof(Article);
-        file.seekg(offset, ios::beg); // Jump directly to record boundary
-        file.read((char*)&a, sizeof(Article));
+    // Use seekg to jump directly to each record
+    for (int i = 0; i < totalRecords; i++) {
+        int offset = i * sizeof(Article);
+        file.seekg(offset, ios::beg); // Jump to record boundary
+        file.read((char*)&a, sizeof(a));
 
-        if (file && a.getId() == searchId) {
-            cout << "\n[RECORD FOUND VIA seekg]"
-                 << "\nFile Byte Offset : " << offset << " bytes"
-                 << "\nRecord Index     : " << i;
-            displayArticle(a);
+        if (a.getId() == searchId) {
+            cout << "\n[RECORD FOUND VIA seekg]";
+            cout << "\nFile Byte Offset : " << offset << " bytes";
+            cout << "\nRecord Index     : " << i;
+            display(a);
             found = true;
             break;
         }
     }
 
     if (!found) {
-        cout << "\nArticle with ID " << searchId << " not found in " << DATA_FILE << ".\n";
+        cout << "\nArticle with ID " << searchId << " not found!\n";
     }
     file.close();
 }
 
-// 4. Update Article using seekp (In-place binary modification)
-void updateArticleSeekp() {
-    fstream file(DATA_FILE, ios::in | ios::out | ios::binary);
+// 4. Update Article using seekp (In-place binary overwrite)
+void updateArticle() {
+    // Open in read and write mode (in | out | binary)
+    fstream file("data/articles.dat", ios::in | ios::out | ios::binary);
     if (!file) {
-        cout << "\nCannot open file for updating.\n";
+        cout << "\nCannot open data file for updating!\n";
         return;
     }
 
     int updateId;
     cout << "\nEnter Article ID to update: ";
-    if (!(cin >> updateId)) {
-        cin.clear();
-        cin.ignore(1000, '\n');
-        cout << "Invalid input.\n";
-        return;
-    }
+    cin >> updateId;
     cin.ignore();
 
-    int total = countRecords();
-    int targetIndex = -1;
-    streampos targetOffset = 0;
+    file.seekg(0, ios::end);
+    int totalRecords = file.tellg() / sizeof(Article);
+
     Article a;
+    int targetOffset = -1;
 
-    // Locate record position using seekg
-    for (int i = 0; i < total; i++) {
-        streampos offset = i * sizeof(Article);
+    // Find the record and get its byte offset
+    for (int i = 0; i < totalRecords; i++) {
+        int offset = i * sizeof(Article);
         file.seekg(offset, ios::beg);
-        file.read((char*)&a, sizeof(Article));
+        file.read((char*)&a, sizeof(a));
 
-        if (file && a.getId() == updateId) {
-            targetIndex = i;
+        if (a.getId() == updateId) {
             targetOffset = offset;
             break;
         }
     }
 
-    if (targetIndex == -1) {
-        cout << "\nArticle with ID " << updateId << " not found. Cannot update.\n";
+    if (targetOffset == -1) {
+        cout << "\nArticle with ID " << updateId << " not found!\n";
         file.close();
         return;
     }
 
-    cout << "\nCurrent details for Article " << updateId << ":";
-    displayArticle(a);
+    cout << "\nCurrent Details for Article " << updateId << ":";
+    display(a);
 
-    cout << "\nEnter updated values:\n";
-    a.updateData();
+    cout << "\nEnter New Values:\n";
+    a.update();
 
-    // In-place binary overwrite using seekp
-    file.seekp(targetOffset, ios::beg);     // Reposition put pointer to target offset
-    file.write((char*)&a, sizeof(Article)); // Overwrite only this record
-    file.flush();
+    // Use seekp to position write pointer at target offset
+    file.seekp(targetOffset, ios::beg);
+    file.write((char*)&a, sizeof(a)); // Overwrite only this record
     file.close();
 
-    cout << "\n[SUCCESS] Article " << updateId << " updated in-place via seekp at byte offset "
-         << targetOffset << ".\n";
+    cout << "\n[SUCCESS] Article " << updateId << " updated in-place via seekp at byte " << targetOffset << "!\n";
 }
 
-// 5. Demonstrate Constructors & Destructor (for Viva Examination)
-void demonstrateConstructors() {
-    cout << "\n========================================"
-         << "\nCONSTRUCTOR & DESTRUCTOR DEMONSTRATION"
-         << "\n========================================\n";
+// 5. Demonstrate Constructors & Destructor (for Viva)
+void demoConstructors() {
+    cout << "\n========================================";
+    cout << "\nCONSTRUCTOR & DESTRUCTOR DEMONSTRATION";
+    cout << "\n========================================\n";
 
     cout << "\n1. Default Constructor (Empty fields, zero ID):";
-    Article defaultObj;
-    displayArticle(defaultObj);
+    Article a1;
+    display(a1);
 
-    cout << "\n2. Parameterized Constructor (Initializes with values):";
-    Article paramObj(999, "Science Fair 2026", "Aman Verma", "Education", 450);
-    displayArticle(paramObj);
+    cout << "\n2. Parameterized Constructor (Initial values):";
+    Article a2(999, "Science Fair 2026", "Aman Verma", "Education", 450);
+    display(a2);
 
-    cout << "\n3. Copy Constructor (Deep copy of paramObj):";
-    Article copyObj = paramObj; // Calls Copy Constructor
-    displayArticle(copyObj);
+    cout << "\n3. Copy Constructor (Deep copy of a2):";
+    Article a3 = a2;
+    display(a3);
 
-    cout << "4. Destructor:\n"
-         << "   Objects are destroyed automatically when leaving this scope.\n"
-         << "========================================\n";
+    cout << "\n4. Destructor:";
+    cout << "\n   Objects will be destroyed automatically when function ends.\n";
+    cout << "========================================\n";
 }
 
-// ============================================================
 // Main Function
-// ============================================================
 int main() {
-    int loaded = countRecords();
-    Article::setCount(loaded);
-
-    cout << "========================================================\n"
-         << " COMMUNITY NEWSPAPER EDITORIAL DESK - CA 2\n"
-         << " Himanshu Gupta | Roll 52 | CAP455 Unit III\n"
-         << "========================================================\n";
-
-    if (loaded > 0) {
-        cout << "[PERSISTENCE] Restored " << loaded
-             << " article(s) from " << DATA_FILE << ".\n"
-             << "Data has survived previous program restart.\n";
-    } else {
-        cout << "[PERSISTENCE] Data file initialized (ready for new records).\n";
-    }
-
     int choice;
     while (true) {
-        cout << "\n---------------- MENU ----------------\n"
-             << "1. Add Article (Append to binary file)\n"
-             << "2. View All Articles (Read from file)\n"
-             << "3. Search Article by ID (seekg)\n"
-             << "4. Update Article by ID (seekp)\n"
-             << "5. Demonstrate Constructors & Destructor\n"
-             << "6. Exit\n"
-             << "--------------------------------------\n"
-             << "Enter choice (1-6): ";
+        cout << "\n========================================================";
+        cout << "\n COMMUNITY NEWSPAPER EDITORIAL DESK - CA 2";
+        cout << "\n Himanshu Gupta | Roll 52 | CAP455 Unit III";
+        cout << "\n========================================================";
+        cout << "\n1. Add Article (Append to binary file)";
+        cout << "\n2. View All Articles (Read from file)";
+        cout << "\n3. Search Article by ID (seekg)";
+        cout << "\n4. Update Article by ID (seekp)";
+        cout << "\n5. Demonstrate Constructors & Destructor";
+        cout << "\n6. Exit";
+        cout << "\n--------------------------------------------------------";
+        cout << "\nEnter choice (1-6): ";
 
         if (!(cin >> choice)) {
             break;
         }
         cin.ignore();
 
-        switch (choice) {
-            case 1: addArticle(); break;
-            case 2: viewAllArticles(); break;
-            case 3: searchArticleSeekg(); break;
-            case 4: updateArticleSeekp(); break;
-            case 5: demonstrateConstructors(); break;
-            case 6:
-                cout << "\nProgram closed. All records remain saved in " << DATA_FILE << ".\n";
-                return 0;
-            default:
-                cout << "Invalid choice! Enter a number between 1 and 6.\n";
+        if (choice == 1) {
+            addArticle();
+        } else if (choice == 2) {
+            viewArticles();
+        } else if (choice == 3) {
+            searchArticle();
+        } else if (choice == 4) {
+            updateArticle();
+        } else if (choice == 5) {
+            demoConstructors();
+        } else if (choice == 6) {
+            cout << "\nProgram closed. Data remains saved in data/articles.dat\n";
+            break;
+        } else {
+            cout << "\nInvalid choice! Enter a number between 1 and 6.\n";
         }
     }
     return 0;
