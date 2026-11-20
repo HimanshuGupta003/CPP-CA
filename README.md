@@ -11,7 +11,7 @@
 
 ## 1. Project Overview & Scenario
 
-In a community newspaper editorial office, editors manage articles submitted by local reporters. Articles belong to categories such as **Local News**, **Education**, and **Events**. 
+In a community newspaper editorial office, editors manage articles submitted by local reporters. Articles belong to categories such as **Local News**, **Education**, and **Events**.
 
 ### Evolution from CA 1 to CA 2:
 * **CA 1 (In-Memory Prototype):** Articles were stored in a simple array in RAM. When the program closed, all records were lost.
@@ -19,30 +19,12 @@ In a community newspaper editorial office, editors manage articles submitted by 
 
 ---
 
-## 2. Unit III Requirements & Feature Summary
-
-| Required Concept | Line Numbers in Code | How It Is Implemented |
-| :--- | :---: | :--- |
-| **Default Constructor** | Lines 23–29 | `Article()` sets safe zero/empty values for uninitialized objects. |
-| **Parameterized Constructor** | Lines 32–38 | `Article(int, char*, ...)` uses a **member initializer list** (`: id(i), words(w)`) and increments static counter. |
-| **Copy Constructor** | Lines 41–47 | `Article(const Article &a)` deep-copies all fields from object `a`. |
-| **Destructor** | Lines 50–52 | `~Article()` automatically runs cleanup on scope exit. |
-| **Fixed-Size Binary Records** | Lines 12–18 | Exact size of **108 bytes** (`int` + `char[50]` + `char[30]` + `char[20]` + `int`). |
-| **Binary File Persistence** | Lines 139–141, 148 | `fstream` binary mode (`ios::binary`, `ios::app`, `ios::in`, `ios::out`). |
-| **Random-Access Search (`seekg`)** | Lines 191–204 | Calculates `offset = i * 108` bytes and jumps get-pointer with `file.seekg(offset, ios::beg)`. |
-| **In-Place Update (`seekp`)** | Lines 256–259 | Jumps put-pointer with `file.seekp(targetOffset, ios::beg)` and overwrites only that 108-byte record. |
-| **Friend Function** | Lines 87, 94–102 | `friend void display(Article a)` prints private article fields. |
-| **Static Member** | Lines 20, 91 | `static int count;` tracks total article objects created. |
-| **Inline Function** | Lines 55–57 | `inline int getId()` returns ID with zero call overhead. |
-
----
-
-## 3. Memory Layout & Fixed-Size Binary Architecture
+## 2. Memory Layout & Fixed-Size Binary Architecture
 
 ### Why `char[]` instead of `std::string`? (Critical Viva Question)
 * `std::string` manages its text dynamically on the heap; the class instance only holds an internal memory pointer (RAM address).
 * If you dump an object with `std::string` to disk via `file.write()`, you are saving **transient RAM addresses** that become invalid upon restarting the program. Dereferencing them later causes crashes and segmentation faults.
-* By using fixed-size character arrays, the text itself is stored inside the object.
+* By using fixed-size character arrays, the text itself is stored inside the object memory.
 
 ### The 108-Byte Record Calculation:
 $$\begin{aligned}
@@ -65,182 +47,250 @@ This mathematical guarantee makes `seekg` random access and `seekp` in-place upd
 
 ---
 
-## 4. COMPLETE LINE-BY-LINE CODE EXPLANATION
+## 3. COMPLETE LINE-BY-LINE CODE EXPLANATION (WHAT & WHY)
 
-Here is the exact explanation of every single line of `src/52_CAP455_CA2_Community_Newspaper_Editorial_Desk.cpp`:
-
-```
-Line 1:  // CAP455 CA2 - Community Newspaper Editorial Desk
-Line 2:  // Student: Himanshu Gupta | Roll 52 | Registration 12602516 | Section D1P2635
-Line 3:  // Unit III: Constructors, Destructor, Binary File Persistence, seekg, seekp
-```
-* **Lines 1–3:** Comment header identifying the student, registration details, course code, and Unit III topic.
-
-```cpp
-Line 5:  #include <iostream>
-Line 6:  #include <fstream>
-Line 7:  #include <cstring>
-Line 8:  using namespace std;
-```
-* **Line 5 (`#include <iostream>`):** Includes the standard C++ input/output library for `cin` (console input) and `cout` (console output).
-* **Line 6 (`#include <fstream>`):** Includes the file stream library for binary file operations (`ifstream` for reading, `ofstream` for writing, and `fstream` for read-write mode).
-* **Line 7 (`#include <cstring>`):** Includes the C string library to use string copy functions like `strcpy()`.
-* **Line 8 (`using namespace std;`):** Allows using standard library identifiers (like `cout`, `cin`, `endl`, `ios`) without prefixing `std::`.
+Below is the complete, comprehensive line-by-line breakdown of `src/52_CAP455_CA2_Community_Newspaper_Editorial_Desk.cpp`. Every single line is explained with:
+1. **What is it? (Kya hai ye?)**
+2. **Why is it used? (Kyu use kiya gaya hai?)**
 
 ---
 
-### Class `Article` Definition (Lines 11–88)
+### Part 1: Header Comments & Preprocessor Directives (Lines 1–8)
 
+#### Lines 1–3: Comments
 ```cpp
-Line 11: class Article {
-Line 12: private:
-Line 13:     int id;
-Line 14:     char title[50];
-Line 15:     char reporter[30];
-Line 16:     char category[20];
-Line 17:     int words;
+// CAP455 CA2 - Community Newspaper Editorial Desk
+// Student: Himanshu Gupta | Roll 52 | Registration 12602516 | Section D1P2635
+// Unit III: Constructors, Destructor, Binary File Persistence, seekg, seekp
 ```
-* **Line 11:** Declares the class `Article` representing an individual news report.
-* **Line 12 (`private:`):** Access specifier that enforces **encapsulation**; variables below can only be directly accessed by member functions and friends of this class.
-* **Line 13 (`int id;`):** 4-byte integer representing the unique primary key of the article.
-* **Line 14 (`char title[50];`):** 50-byte character array holding the article headline.
-* **Line 15 (`char reporter[30];`):** 30-byte character array holding the author/reporter name.
-* **Line 16 (`char category[20];`):** 20-byte character array holding the category (e.g., Local News, Education, Events).
-* **Line 17 (`int words;`):** 4-byte integer storing the article word count.
+* **What is it?:** Single-line comments (`//`) ignored by the C++ compiler.
+* **Why is it used?:** Documents project metadata: student name, roll number, registration number, course code, and Unit III curriculum alignment.
 
+#### Line 5: `#include <iostream>`
+* **What is it?:** Preprocessor directive that includes the standard C++ Input/Output stream header file.
+* **Why is it used?:** Required to use `cin` (taking user input from keyboard) and `cout` (displaying output on the terminal). Without this, basic input/output will not compile.
+
+#### Line 6: `#include <fstream>`
+* **What is it?:** File Stream library header file containing stream classes: `ifstream` (file input/reading), `ofstream` (file output/writing), and `fstream` (bidirectional reading and writing).
+* **Why is it used?:** Essential for CA 2 binary persistence. It provides file stream objects and member functions like `read()`, `write()`, `seekg()`, `seekp()`, `tellg()`, and `close()`.
+
+#### Line 7: `#include <cstring>`
+* **What is it?:** C-style string manipulation library header.
+* **Why is it used?:** Provides standard string functions like `strcpy()`. Since we use fixed character arrays (`char[]`) instead of `std::string` for binary safety, we need `strcpy()` to copy strings into character array buffers.
+
+#### Line 8: `using namespace std;`
+* **What is it?:** Namespace declaration importing all standard library identifiers into the global scope.
+* **Why is it used?:** Allows writing `cout`, `cin`, `endl`, `ios` directly instead of prefixing every standard identifier with `std::` (e.g., `std::cout`, `std::cin`).
+
+---
+
+### Part 2: Class `Article` — Private Data Members (Lines 11–18)
+
+#### Line 11: `class Article {`
+* **What is it?:** Begins the definition of user-defined class `Article`.
+* **Why is it used?:** Represents the core entity of our newspaper system. It encapsulates all article-related data and functions into a single blueprint.
+
+#### Line 12: `private:`
+* **What is it?:** Access specifier restricting access to members defined below it to within the class and friend functions only.
+* **Why is it used?:** Implements **Encapsulation / Data Hiding**. Prevents outside code from directly modifying or corrupting sensitive article variables without validation.
+
+#### Line 13: `int id;`
+* **What is it?:** 4-byte integer variable representing the article's unique ID.
+* **Why is it used?:** Acts as the **Primary Key** to uniquely identify each article in the database. Essential for search (`seekg`) and update (`seekp`) operations.
+
+#### Line 14: `char title[50];`
+* **What is it?:** Fixed-size 50-byte character array storing the article headline.
+* **Why is it used?:** Holds text up to 49 characters + 1 null terminator (`\0`). Fixed size ensures `sizeof(Article)` is constant, preventing memory corruption during binary file I/O.
+
+#### Line 15: `char reporter[30];`
+* **What is it?:** Fixed-size 30-byte character array storing reporter/author name.
+* **Why is it used?:** Stores author name with guaranteed fixed memory footprint.
+
+#### Line 16: `char category[20];`
+* **What is it?:** Fixed-size 20-byte character array storing section/category (Local News, Education, Events).
+* **Why is it used?:** Categorizes articles while maintaining fixed record size.
+
+#### Line 17: `int words;`
+* **What is it?:** 4-byte integer variable storing word count.
+* **Why is it used?:** Editorial metadata to track article length.
+
+---
+
+### Part 3: Class `Article` — Public Section & Static Member (Lines 19–20)
+
+#### Line 19: `public:`
+* **What is it?:** Access specifier making functions and variables accessible from anywhere in the program.
+* **Why is it used?:** Constructors, member functions, and interfaces must be callable from `main()` and global file handling functions.
+
+#### Line 20: `static int count;`
+* **What is it?:** Static member variable declaration of type `int`.
+* **Why is it used?:** Unlike normal variables which exist per object, a `static` variable is shared across all objects of the class. It tracks the total number of article objects instantiated throughout the program's lifecycle.
+
+---
+
+### Part 4: Constructors & Destructor (Lines 22–52) — Core Unit III Requirement
+
+#### Lines 22–29: Default Constructor
 ```cpp
-Line 19: public:
-Line 20:     static int count; // Static variable to track total articles
+Line 23: Article() {
+Line 24:     id = 0;
+Line 25:     strcpy(title, "");
+Line 26:     strcpy(reporter, "");
+Line 27:     strcpy(category, "");
+Line 28:     words = 0;
+Line 29: }
 ```
-* **Line 19 (`public:`):** Access specifier allowing functions below to be called from anywhere in the program.
-* **Line 20 (`static int count;`):** Class-level static variable shared across all `Article` instances to count total articles created.
+* **Line 23 (`Article()`):**
+  * **What is it?:** Default Constructor (takes no arguments, has class name, no return type).
+  * **Why is it used?:** Automatically called when an object is declared without parameters (e.g., `Article a;` before reading from file). Ensures objects start in a safe, predictable state instead of containing random RAM garbage values.
+* **Line 24 (`id = 0;`):**
+  * **What is it?:** Assigns zero to ID.
+  * **Why is it used?:** Sets ID to a safe sentinel/default state.
+* **Lines 25–27 (`strcpy(..., "");`):**
+  * **What is it?:** Copies an empty string `""` into character arrays.
+  * **Why is it used?:** Places a null terminator (`\0`) at the first byte, ensuring string buffers are valid empty strings rather than uninitialized memory.
+* **Line 28 (`words = 0;`):**
+  * **What is it?:** Assigns zero to word count.
+  * **Why is it used?:** Clears word count.
+* **Line 29 (`}`):**
+  * **What is it?:** Ends Default Constructor.
 
+#### Lines 31–38: Parameterized Constructor with Initializer List
 ```cpp
-Line 22:     // 1. Default Constructor
-Line 23:     Article() {
-Line 24:         id = 0;
-Line 25:         strcpy(title, "");
-Line 26:         strcpy(reporter, "");
-Line 27:         strcpy(category, "");
-Line 28:         words = 0;
-Line 29:     }
+Line 32: Article(int i, const char* t, const char* r, const char* c, int w)
+Line 33:     : id(i), words(w) {
+Line 34:     strcpy(title, t);
+Line 35:     strcpy(reporter, r);
+Line 36:     strcpy(category, c);
+Line 37:     count++;
+Line 38: }
 ```
-* **Line 23:** Declares the **Default Constructor** which takes no parameters.
-* **Line 24:** Sets `id = 0` as a default sentinel value.
-* **Lines 25–27:** Uses `strcpy()` to initialize `title`, `reporter`, and `category` as empty null-terminated strings (`""`).
-* **Line 28:** Sets word count to `0`.
-* **Line 29:** Closes default constructor.
+* **Line 32 (`Article(int i, const char* t, ...)`):**
+  * **What is it?:** Parameterized Constructor accepting values for all fields.
+  * **Why is it used?:** Allows creating and completely initializing an article object in one single step.
+* **Line 33 (`: id(i), words(w) {`):**
+  * **What is it?:** **Member Initializer List**.
+  * **Why is it used?:** Initializes `id` and `words` directly at the moment memory is allocated, before the constructor body executes. It is faster than body assignment and mandatory for `const` or reference members.
+* **Lines 34–36 (`strcpy(...)`):**
+  * **What is it?:** Copies passed string parameters into member arrays.
+  * **Why is it used?:** Populates title, reporter, and category fields.
+* **Line 37 (`count++;`):**
+  * **What is it?:** Increments the static variable `count`.
+  * **Why is it used?:** Keeps an accurate count of total article objects instantiated via parameterized constructor.
+* **Line 38 (`}`):**
+  * **What is it?:** Ends Parameterized Constructor.
 
+#### Lines 40–47: Copy Constructor
 ```cpp
-Line 31:     // 2. Parameterized Constructor (with initializer list)
-Line 32:     Article(int i, const char* t, const char* r, const char* c, int w)
-Line 33:         : id(i), words(w) {
-Line 34:         strcpy(title, t);
-Line 35:         strcpy(reporter, r);
-Line 36:         strcpy(category, c);
-Line 37:         count++;
-Line 38:     }
+Line 41: Article(const Article &a) {
+Line 42:     id = a.id;
+Line 43:     strcpy(title, a.title);
+Line 44:     strcpy(reporter, a.reporter);
+Line 45:     strcpy(category, a.category);
+Line 46:     words = a.words;
+Line 47: }
 ```
-* **Line 32:** Declares the **Parameterized Constructor** accepting 5 parameters: `id (i)`, `title (t)`, `reporter (r)`, `category (c)`, and `words (w)`.
-* **Line 33 (`: id(i), words(w) {`):** Uses a **member initializer list** to initialize integer members directly when object memory is allocated.
-* **Lines 34–36:** Copies the passed string arguments into the fixed character arrays.
-* **Line 37 (`count++;`):** Automatically increments the static counter whenever a parameterized article is created.
-* **Line 38:** Closes constructor.
+* **Line 41 (`Article(const Article &a)`):**
+  * **What is it?:** Copy Constructor taking a constant reference to another `Article`.
+  * **Why is it used?:** Invoked when initializing a new object from an existing object (`Article a3 = a2;`) or passing/returning by value. `const` prevents modifying the source object, and reference (`&`) prevents infinite recursive copying.
+* **Lines 42–46:**
+  * **What is it?:** Copies every field from source object `a` to the new object.
+  * **Why is it used?:** Performs a **deep copy**, ensuring the new object has an independent memory copy and modifying one does not affect the other.
+* **Line 47 (`}`):**
+  * **What is it?:** Ends Copy Constructor.
 
+#### Lines 49–52: Destructor
 ```cpp
-Line 40:     // 3. Copy Constructor (deep copy)
-Line 41:     Article(const Article &a) {
-Line 42:         id = a.id;
-Line 43:         strcpy(title, a.title);
-Line 44:         strcpy(reporter, a.reporter);
-Line 45:         strcpy(category, a.category);
-Line 46:         words = a.words;
-Line 47:     }
+Line 50: ~Article() {
+Line 51:     // Automatically executes when object is destroyed
+Line 52: }
 ```
-* **Line 41:** Declares the **Copy Constructor** taking a constant reference `const Article &a` to an existing article.
-* **Lines 42–46:** Copies every member variable from object `a` into the newly created object, guaranteeing an independent deep copy.
-* **Line 47:** Closes copy constructor.
+* **Line 50 (`~Article()`):**
+  * **What is it?:** Destructor (tilde `~` followed by class name, takes no arguments, cannot be overloaded).
+  * **Why is it used?:** Automatically executed when an `Article` object goes out of scope (e.g. at function end). Performs deterministic cleanup and deallocates stack resources.
+* **Line 52 (`}`):**
+  * **What is it?:** Ends Destructor.
 
+---
+
+### Part 5: Class Member Functions & Friend Declaration (Lines 54–88)
+
+#### Lines 54–57: Inline Accessor Function
 ```cpp
-Line 49:     // 4. Destructor
-Line 50:     ~Article() {
-Line 51:         // Automatically executes when object is destroyed
-Line 52:     }
+Line 55: inline int getId() {
+Line 56:     return id;
+Line 57: }
 ```
-* **Line 50:** Declares the **Destructor** `~Article()`.
-* **Lines 51–52:** Automatically invoked when an `Article` object goes out of scope to perform cleanup.
+* **Line 55 (`inline int getId()`):**
+  * **What is it?:** An inline getter function returning `int`.
+  * **Why is it used?:** Because `id` is private, outside functions cannot read it directly. The `inline` keyword instructs the compiler to replace function calls directly with the return value at compile time, eliminating function call overhead (stack pushing/popping) during fast search loops.
 
+#### Lines 59–71: `input()` Method
 ```cpp
-Line 54:     // Inline function to return ID
-Line 55:     inline int getId() {
-Line 56:         return id;
-Line 57:     }
+Line 60: void input(int newId) {
+Line 61:     id = newId;
+Line 62:     cout << "Enter Article Title        : ";
+Line 63:     cin.getline(title, 50);
+Line 64:     cout << "Enter Reporter Name        : ";
+Line 65:     cin.getline(reporter, 30);
+Line 66:     cout << "Enter Category (News/Events): ";
+Line 67:     cin.getline(category, 20);
+Line 68:     cout << "Enter Word Count           : ";
+Line 69:     cin >> words;
+Line 70:     cin.ignore();
+Line 71: }
 ```
-* **Line 55 (`inline int getId()`):** An inline accessor function that returns the private `id`.
-* **Line 56:** `return id;`
-* **Line 57:** Being `inline`, the compiler replaces calls to this function with the direct value, saving call stack overhead.
+* **Line 60 (`void input(int newId)`):** Member function to read article fields from keyboard.
+* **Line 61 (`id = newId;`):** Assigns validated unique ID.
+* **Lines 62–67 (`cin.getline(...)`):**
+  * **What is it?:** Stream member function reading a full line of text including spaces until Enter or buffer limit.
+  * **Why is it used?:** Regular `cin >> title` stops reading at the first space (so "Local News" would only read "Local"). `cin.getline()` allows multi-word titles and names.
+* **Lines 68–69 (`cin >> words;`):** Reads integer word count.
+* **Line 70 (`cin.ignore();`):**
+  * **What is it?:** Discards one character from input buffer.
+  * **Why is it used?:** After `cin >> words`, the user presses Enter, leaving a newline `\n` in the buffer. Without `cin.ignore()`, the subsequent `getline()` would read that empty newline and skip input.
+* **Line 71 (`}`):** Ends `input()` method.
 
+#### Lines 73–84: `update()` Method
 ```cpp
-Line 59:     // Function to take input from user
-Line 60:     void input(int newId) {
-Line 61:         id = newId;
-Line 62:         cout << "Enter Article Title        : ";
-Line 63:         cin.getline(title, 50);
-Line 64:         cout << "Enter Reporter Name        : ";
-Line 65:         cin.getline(reporter, 30);
-Line 66:         cout << "Enter Category (News/Events): ";
-Line 67:         cin.getline(category, 20);
-Line 68:         cout << "Enter Word Count           : ";
-Line 69:         cin >> words;
-Line 70:         cin.ignore();
-Line 71:     }
+Line 74: void update() {
+Line 75:     cout << "Enter New Title            : ";
+Line 76:     cin.getline(title, 50);
+Line 77:     cout << "Enter New Reporter Name    : ";
+Line 78:     cin.getline(reporter, 30);
+Line 79:     cout << "Enter New Category         : ";
+Line 80:     cin.getline(category, 20);
+Line 81:     cout << "Enter New Word Count       : ";
+Line 82:     cin >> words;
+Line 83:     cin.ignore();
+Line 84: }
 ```
-* **Line 60:** Declares `input()` method receiving the validated `newId`.
-* **Line 61:** Sets `id = newId;`.
-* **Lines 62–63:** Reads multi-word headline into `title` using `cin.getline(title, 50)`.
-* **Lines 64–65:** Reads author into `reporter` using `cin.getline(reporter, 30)`.
-* **Lines 66–67:** Reads section into `category` using `cin.getline(category, 20)`.
-* **Lines 68–69:** Reads integer into `words`.
-* **Line 70 (`cin.ignore();`):** Clears the lingering newline character from the input buffer so the next `getline()` doesn't get skipped.
+* **What is it?:** Member function that prompts the editor for new values for title, reporter, category, and words.
+* **Why is it used?:** Used during `seekp` in-place update. It keeps the original `id` intact while letting the user edit the content fields.
 
+#### Lines 86–88: Friend Declaration & End of Class
 ```cpp
-Line 73:     // Function to update details
-Line 74:     void update() {
-Line 75:         cout << "Enter New Title            : ";
-Line 76:         cin.getline(title, 50);
-Line 77:         cout << "Enter New Reporter Name    : ";
-Line 78:         cin.getline(reporter, 30);
-Line 79:         cout << "Enter New Category         : ";
-Line 80:         cin.getline(category, 20);
-Line 81:         cout << "Enter New Word Count       : ";
-Line 82:         cin >> words;
-Line 83:         cin.ignore();
-Line 84:     }
-```
-* **Line 74:** Method called during in-place record updates.
-* **Lines 75–83:** Prompts the editor for updated title, reporter, category, and words.
-* **Line 83:** Flushes the newline.
-
-```cpp
-Line 86:     // Friend function to display private data
-Line 87:     friend void display(Article a);
+Line 87: friend void display(Article a);
 Line 88: };
 ```
-* **Line 87:** Declares external function `display(Article a)` as a **friend**, granting it permission to access private members.
-* **Line 88:** Closes the `class Article` definition with a semicolon.
+* **Line 87 (`friend void display(Article a);`):**
+  * **What is it?:** Friend function declaration.
+  * **Why is it used?:** Grants the non-member function `display()` permission to access `private` data members (`id`, `title`, etc.) directly without needing individual public getter functions for every single field.
+* **Line 88 (`};`):** Ends class definition. Must terminate with a semicolon in C++.
 
 ---
 
-### Global Definitions & Friend Function (Lines 90–102)
+### Part 6: Global Static Definition & Friend Implementation (Lines 90–102)
 
+#### Line 91: Static Variable Definition
 ```cpp
-Line 90: // Initialize static member variable
 Line 91: int Article::count = 0;
 ```
-* **Line 91:** Defines and allocates storage for static member `Article::count` in the program's data segment, initializing it to `0`.
+* **What is it?:** Defines and allocates memory for static variable `Article::count` in the global data segment, initializing it to `0`.
+* **Why is it used?:** In C++, static data members are only declared inside the class. They must be explicitly defined and initialized outside the class in global scope; otherwise, the linker throws an "unresolved external symbol" error.
 
+#### Lines 93–102: Friend Function `display()`
 ```cpp
-Line 93: // Friend function definition
 Line 94: void display(Article a) {
 Line 95:     cout << "\n----------------------------------------";
 Line 96:     cout << "\nArticle ID : " << a.id;
@@ -251,15 +301,15 @@ Line 100:    cout << "\nWord Count : " << a.words;
 Line 101:    cout << "\n----------------------------------------\n";
 Line 102: }
 ```
-* **Line 94:** Definition of friend function `display()` which takes an `Article a` by value.
-* **Lines 95–101:** Formats and prints all private fields (`id`, `title`, `reporter`, `category`, `words`) as a clean card.
+* **Line 94 (`void display(Article a)`):** Non-member function receiving an `Article a` by value.
+* **Lines 95–101:** Prints all private fields cleanly formatted as an article card.
+* **Why is it used?:** Centralizes display logic so any function (view, search, update demo) can format article output consistently.
 
 ---
 
-### Helper Function: Duplicate ID Checker (Lines 104–117)
+### Part 7: Helper Function `isDuplicate()` (Lines 104–117)
 
 ```cpp
-Line 104: // Function to check if ID already exists in file
 Line 105: bool isDuplicate(int id) {
 Line 106:     ifstream file("data/articles.dat", ios::binary);
 Line 107:     if (!file) return false;
@@ -274,27 +324,28 @@ Line 115:     file.close();
 Line 116:     return false;
 Line 117: }
 ```
-* **Line 105:** Returns `true` if `id` already exists on disk, `false` otherwise.
+* **Line 105:** Returns boolean: `true` if ID already exists, `false` otherwise.
 * **Line 106:** Opens `data/articles.dat` in read-only binary mode (`ios::binary`).
-* **Line 107:** If file doesn't exist yet (e.g. first run), returns `false` safely.
-* **Line 108:** Local `Article a;` buffer.
-* **Line 109:** Loop reading record-by-record: `file.read((char*)&a, sizeof(a))` reads exactly 108 bytes into `a`.
-* **Line 110:** If `a.getId() == id`, closes file and returns `true` (duplicate found).
-* **Line 115–116:** If file ends without a match, closes file and returns `false`.
+* **Line 107 (`if (!file) return false;`):** If file doesn't exist yet (e.g. first run), no duplicate can exist, so returns `false` safely.
+* **Line 108 (`Article a;`):** Buffer object to hold records as they are read.
+* **Line 109 (`while (file.read((char*)&a, sizeof(a)))`):**
+  * **What is it?:** Loops reading 108 bytes from file into object `a` on each iteration until End-Of-File (EOF).
+  * **Why is it used?:** Scans all stored records sequentially.
+* **Lines 110–113:** If `a.getId() == id`, closes file and immediately returns `true` (duplicate detected).
+* **Lines 115–116:** If file ends without a match, closes file and returns `false`.
 
 ---
 
-### Operation 1: Add Article (Lines 119–144)
+### Part 8: Function 1 — Add Article (`addArticle`) (Lines 119–144)
 
 ```cpp
-Line 119: // 1. Add Article (Append to binary file)
 Line 120: void addArticle() {
 Line 121:     int id;
 Line 122:     cout << "\nEnter Article ID: ";
 Line 123:     cin >> id;
 Line 124:     cin.ignore();
 ```
-* **Lines 120–124:** Prompts editor for article ID and clears the newline.
+* **Lines 120–124:** Prompts user for ID and flushes trailing newline.
 
 ```cpp
 Line 126:     if (id <= 0) {
@@ -306,33 +357,35 @@ Line 131:         cout << "Error: Article ID " << id << " already exists! Use a 
 Line 132:         return;
 Line 133:     }
 ```
-* **Lines 126–129:** Validates that ID is a positive integer.
-* **Lines 130–133:** Calls `isDuplicate(id)`; if ID exists, displays error and aborts to prevent duplicate keys.
+* **Lines 126–129:** Input validation: ensures ID is positive.
+* **Lines 130–133:** Enforces Primary Key uniqueness: calls `isDuplicate()`. If ID exists, rejects and aborts.
 
 ```cpp
 Line 135:     Article a;
 Line 136:     a.input(id);
-Line 137: 
-Line 138:     // Open in binary append mode
+```
+* **Line 135:** Declares empty `Article a;` (invoking Default Constructor).
+* **Line 136:** Calls `a.input(id)` to prompt for title, reporter, category, and words.
+
+```cpp
 Line 139:     ofstream file("data/articles.dat", ios::binary | ios::app);
 Line 140:     file.write((char*)&a, sizeof(a));
 Line 141:     file.close();
-Line 142: 
 Line 143:     cout << "\n[SUCCESS] Article " << id << " saved to data/articles.dat!\n";
 Line 144: }
 ```
-* **Lines 135–136:** Instantiates `Article a` and populates it via `a.input(id)`.
-* **Line 139:** Opens `data/articles.dat` in **binary append mode** (`ios::binary | ios::app`).
-* **Line 140:** `file.write((char*)&a, sizeof(a));` copies all 108 bytes of `a` directly to the end of the file.
-* **Line 141:** Closes file stream to flush data to disk.
+* **Line 139:** Opens output stream `ofstream` in **binary append mode** (`ios::binary | ios::app`). `ios::app` ensures the write pointer starts at the end of the file, preserving existing records.
+* **Line 140 (`file.write((char*)&a, sizeof(a));`):**
+  * **What is it?:** Copies exactly 108 bytes from the RAM address of object `a` directly to disk.
+  * **Why is it used?:** `(char*)&a` casts object address to a byte pointer, allowing raw byte transfer.
+* **Line 141 (`file.close();`):** Flushes stream buffer and closes file.
 * **Line 143:** Prints confirmation message.
 
 ---
 
-### Operation 2: View All Articles (Lines 146–167)
+### Part 9: Function 2 — View All Articles (`viewArticles`) (Lines 146–167)
 
 ```cpp
-Line 146: // 2. View All Articles (Sequential read from binary file)
 Line 147: void viewArticles() {
 Line 148:     ifstream file("data/articles.dat", ios::binary);
 Line 149:     if (!file) {
@@ -340,8 +393,8 @@ Line 150:         cout << "\nNo records found in data file!\n";
 Line 151:         return;
 Line 152:     }
 ```
-* **Line 148:** Opens `data/articles.dat` in binary read mode (`ios::binary`).
-* **Lines 149–152:** If file cannot be opened (e.g. not created yet), alerts user and returns.
+* **Line 148:** Opens input stream `ifstream` in binary mode (`ios::binary`).
+* **Lines 149–152:** Validates that file exists. If file doesn't exist, alerts user and returns.
 
 ```cpp
 Line 154:     Article a;
@@ -351,7 +404,13 @@ Line 157:         display(a);
 Line 158:         total++;
 Line 159:     }
 Line 160:     file.close();
-Line 161: 
+```
+* **Line 154:** Buffer object `a` to store each record read.
+* **Line 155:** Counter `total` to track number of articles displayed.
+* **Lines 156–159:** Loop continuously reads 108-byte blocks until EOF. For every record read, calls `display(a)` and increments `total`.
+* **Line 160:** Closes file stream.
+
+```cpp
 Line 162:     if (total == 0) {
 Line 163:         cout << "\nNo records found!\n";
 Line 164:     } else {
@@ -359,52 +418,59 @@ Line 165:         cout << "\nTotal Articles Saved: " << total << "\n";
 Line 166:     }
 Line 167: }
 ```
-* **Line 154:** Temporary buffer object `a`.
-* **Line 155:** Counter `total = 0`.
-* **Lines 156–159:** `while(file.read(...))` reads 108 bytes on each iteration until End-Of-File (EOF). Calls `display(a)` for each record and increments `total`.
-* **Line 160:** Closes the file.
-* **Lines 162–166:** Displays total number of records retrieved.
+* **Lines 162–166:** Displays total count of active records retrieved from the database.
 
 ---
 
-### Operation 3: Search with `seekg` (Lines 169–210)
+### Part 10: Function 3 — Random-Access Search with `seekg` (`searchArticle`) (Lines 169–210)
 
 ```cpp
-Line 169: // 3. Search Article using seekg (Random-access search)
 Line 170: void searchArticle() {
 Line 171:     ifstream file("data/articles.dat", ios::binary);
 Line 172:     if (!file) {
 Line 173:         cout << "\nData file not found!\n";
 Line 174:         return;
 Line 175:     }
-Line 176: 
 Line 177:     int searchId;
 Line 178:     cout << "\nEnter Article ID to search: ";
 Line 179:     cin >> searchId;
 Line 180:     cin.ignore();
 ```
-* **Lines 171–180:** Opens file in binary mode and reads `searchId` from editor.
+* **Lines 171–180:** Opens file in binary mode and reads `searchId` from user.
 
 ```cpp
-Line 182:     // Calculate total records using seekg and tellg
 Line 183:     file.seekg(0, ios::end);
 Line 184:     int totalBytes = file.tellg();
 Line 185:     int totalRecords = totalBytes / sizeof(Article);
 ```
-* **Line 183 (`file.seekg(0, ios::end);`):** Positions the get-pointer to the end of the file.
-* **Line 184 (`file.tellg();`):** Returns the total byte size of the file.
-* **Line 185:** Divides total bytes by 108 to compute total records stored.
+* **Line 183 (`file.seekg(0, ios::end);`):**
+  * **What is it?:** Moves the input (get) pointer to offset 0 relative to end of file (`ios::end`).
+  * **Why is it used?:** Required to measure the total size of the file.
+* **Line 184 (`int totalBytes = file.tellg();`):**
+  * **What is it?:** Returns current get-pointer position in bytes.
+  * **Why is it used?:** Since pointer is at the end, this returns the total byte size of `data/articles.dat`.
+* **Line 185 (`int totalRecords = totalBytes / sizeof(Article);`):**
+  * **What is it?:** Divides total file bytes by 108 (size of one `Article`).
+  * **Why is it used?:** Computes the exact number of records in the database (e.g. $216 / 108 = 2$).
 
 ```cpp
 Line 187:     Article a;
 Line 188:     bool found = false;
-Line 189: 
-Line 190:     // Use seekg to jump directly to each record
 Line 191:     for (int i = 0; i < totalRecords; i++) {
 Line 192:         int offset = i * sizeof(Article);
-Line 193:         file.seekg(offset, ios::beg); // Jump to record boundary
+Line 193:         file.seekg(offset, ios::beg);
 Line 194:         file.read((char*)&a, sizeof(a));
-Line 195: 
+```
+* **Line 191:** Loops through record indices $i = 0, 1, 2, \dots$
+* **Line 192 (`int offset = i * sizeof(Article);`):**
+  * **What is it?:** Calculates byte position: $i \times 108$ bytes.
+  * **Why is it used?:** Record 0 is at 0, Record 1 is at 108, Record 2 is at 216.
+* **Line 193 (`file.seekg(offset, ios::beg);`):**
+  * **What is it?:** Positions the get-pointer to `offset` bytes from beginning (`ios::beg`).
+  * **Why is it used?:** **Core Unit III requirement.** Directly jumps the file read head to the exact record boundary without scanning earlier records.
+* **Line 194 (`file.read((char*)&a, sizeof(a));`):** Reads the 108-byte record into `a`.
+
+```cpp
 Line 196:         if (a.getId() == searchId) {
 Line 197:             cout << "\n[RECORD FOUND VIA seekg]";
 Line 198:             cout << "\nFile Byte Offset : " << offset << " bytes";
@@ -414,62 +480,59 @@ Line 201:             found = true;
 Line 202:             break;
 Line 203:         }
 Line 204:     }
-Line 205: 
+```
+* **Line 196:** Compares article ID with search query.
+* **Lines 197–200:** If matched, prints proof of `seekg` positioning: the exact file byte offset and record index, then calls `display(a)`.
+* **Lines 201–202:** Sets `found = true` and `break` terminates loop early.
+
+```cpp
 Line 206:     if (!found) {
 Line 207:         cout << "\nArticle with ID " << searchId << " not found!\n";
 Line 208:     }
 Line 209:     file.close();
 Line 210: }
 ```
-* **Line 191:** Loops through record indices $i = 0, 1, 2, \dots$
-* **Line 192 (`int offset = i * sizeof(Article);`):** Calculates exact byte address ($0, 108, 216\dots$).
-* **Line 193 (`file.seekg(offset, ios::beg);`):** Moves the get-pointer directly to that byte boundary from the beginning (`ios::beg`).
-* **Line 194:** Reads that 108-byte record into `a`.
-* **Lines 196–203:** If `a.getId() == searchId`, outputs proof of `seekg` positioning (byte offset and index), displays details, sets `found = true`, and exits loop.
-* **Lines 206–209:** Reports missing record if not found and closes file.
+* **Lines 206–209:** If not found, prints failure notice and closes file.
 
 ---
 
-### Operation 4: In-Place Update with `seekp` (Lines 212–262)
+### Part 11: Function 4 — In-Place Update with `seekp` (`updateArticle`) (Lines 212–262)
 
 ```cpp
-Line 212: // 4. Update Article using seekp (In-place binary overwrite)
-Line 213: void updateArticle() {
-Line 214:     // Open in read and write mode (in | out | binary)
-Line 215:     fstream file("data/articles.dat", ios::in | ios::out | ios::binary);
-Line 216:     if (!file) {
-Line 217:         cout << "\nCannot open data file for updating!\n";
-Line 218:         return;
-Line 219:     }
+Line 214:     fstream file("data/articles.dat", ios::in | ios::out | ios::binary);
+Line 215:     if (!file) {
+Line 216:         cout << "\nCannot open data file for updating!\n";
+Line 217:         return;
+Line 218:     }
 ```
-* **Line 215:** Opens file in read/write binary mode using `fstream` with combined flags: `ios::in | ios::out | ios::binary`.
+* **Line 214 (`fstream file(..., ios::in | ios::out | ios::binary);`):**
+  * **What is it?:** Opens bidirectional stream in read-write binary mode.
+  * **Why is it used?:** An in-place update requires reading existing records (`ios::in`) to locate the target, and writing (`ios::out`) to overwrite it, without erasing the file.
 
 ```cpp
 Line 221:     int updateId;
 Line 222:     cout << "\nEnter Article ID to update: ";
 Line 223:     cin >> updateId;
 Line 224:     cin.ignore();
-Line 225: 
 Line 226:     file.seekg(0, ios::end);
 Line 227:     int totalRecords = file.tellg() / sizeof(Article);
-Line 228: 
 Line 229:     Article a;
 Line 230:     int targetOffset = -1;
-Line 231: 
-Line 232:     // Find the record and get its byte offset
+```
+* **Lines 221–230:** Prompts for ID to update and calculates total records. Initializes `targetOffset = -1`.
+
+```cpp
 Line 233:     for (int i = 0; i < totalRecords; i++) {
 Line 234:         int offset = i * sizeof(Article);
 Line 235:         file.seekg(offset, ios::beg);
 Line 236:         file.read((char*)&a, sizeof(a));
-Line 237: 
 Line 238:         if (a.getId() == updateId) {
 Line 239:             targetOffset = offset;
 Line 240:             break;
 Line 241:         }
 Line 242:     }
 ```
-* **Lines 226–227:** Calculates total records in file.
-* **Lines 233–242:** Scans with `seekg` to locate the target article and saves its exact byte address in `targetOffset`.
+* **Lines 233–242:** Scans records via `seekg`. When `updateId` matches, stores the record's byte address in `targetOffset` and breaks out.
 
 ```cpp
 Line 244:     if (targetOffset == -1) {
@@ -477,64 +540,59 @@ Line 245:         cout << "\nArticle with ID " << updateId << " not found!\n";
 Line 246:         file.close();
 Line 247:         return;
 Line 248:     }
-Line 249: 
 Line 250:     cout << "\nCurrent Details for Article " << updateId << ":";
 Line 251:     display(a);
-Line 252: 
 Line 253:     cout << "\nEnter New Values:\n";
 Line 254:     a.update();
 ```
-* **Lines 244–248:** If record was not found, displays message and closes file.
-* **Lines 250–251:** Shows current article data before editing.
+* **Lines 244–248:** If target ID doesn't exist, displays error and closes file.
+* **Lines 250–251:** Shows current article details before modification.
 * **Lines 253–254:** Calls `a.update()` to prompt user for new title, reporter, category, and words.
 
 ```cpp
-Line 256:     // Use seekp to position write pointer at target offset
 Line 257:     file.seekp(targetOffset, ios::beg);
-Line 258:     file.write((char*)&a, sizeof(a)); // Overwrite only this record
+Line 258:     file.write((char*)&a, sizeof(a));
 Line 259:     file.close();
-Line 260: 
 Line 261:     cout << "\n[SUCCESS] Article " << updateId << " updated in-place via seekp at byte " << targetOffset << "!\n";
 Line 262: }
 ```
-* **Line 257 (`file.seekp(targetOffset, ios::beg);`):** Positions the put-pointer directly at `targetOffset`.
-* **Line 258 (`file.write((char*)&a, sizeof(a));`):** Writes the updated 108 bytes, overwriting **only** that specific record on disk.
-* **Line 259:** Closes the file.
-* **Line 261:** Outputs confirmation showing the exact byte offset where the in-place overwrite happened.
+* **Line 257 (`file.seekp(targetOffset, ios::beg);`):**
+  * **What is it?:** Positions the output (put) pointer to `targetOffset` bytes from beginning.
+  * **Why is it used?:** **Core Unit III requirement.** Directs the write pointer to the exact 108-byte slot where the old record lives.
+* **Line 258 (`file.write((char*)&a, sizeof(a));`):**
+  * **What is it?:** Overwrites exactly 108 bytes on disk with the new values of `a`.
+  * **Why is it used?:** Overwrites only that single record in-place. The rest of the file remains completely untouched.
+* **Line 259:** Closes file stream.
+* **Line 261:** Confirms in-place update with exact byte offset evidence.
 
 ---
 
-### Operation 5: Constructors Demonstration (Lines 264–285)
+### Part 12: Function 5 — Constructors & Destructor Demo (`demoConstructors`) (Lines 264–285)
 
 ```cpp
-Line 264: // 5. Demonstrate Constructors & Destructor (for Viva)
 Line 265: void demoConstructors() {
 Line 266:     cout << "\n========================================";
 Line 267:     cout << "\nCONSTRUCTOR & DESTRUCTOR DEMONSTRATION";
 Line 268:     cout << "\n========================================\n";
-Line 269: 
 Line 270:     cout << "\n1. Default Constructor (Empty fields, zero ID):";
 Line 271:     Article a1;
 Line 272:     display(a1);
 ```
-* **Line 271:** Instantiates `Article a1;` invoking the **Default Constructor**.
-* **Line 272:** Calls `display(a1)` showing all fields initialized to zero/empty.
+* **Lines 270–272:** Instantiates `Article a1;` invoking the **Default Constructor**. Calls `display(a1)` to prove fields are zero/empty.
 
 ```cpp
 Line 274:     cout << "\n2. Parameterized Constructor (Initial values):";
 Line 275:     Article a2(999, "Science Fair 2026", "Aman Verma", "Education", 450);
 Line 276:     display(a2);
 ```
-* **Line 275:** Instantiates `Article a2(...)` with arguments, invoking the **Parameterized Constructor**.
-* **Line 276:** Calls `display(a2)` showing all fields initialized directly via member initializer list.
+* **Lines 274–276:** Instantiates `Article a2(...)` with parameters, invoking the **Parameterized Constructor**. Calls `display(a2)` to show values populated via member initializer list.
 
 ```cpp
 Line 278:     cout << "\n3. Copy Constructor (Deep copy of a2):";
 Line 279:     Article a3 = a2;
 Line 280:     display(a3);
 ```
-* **Line 279:** Executes `Article a3 = a2;` invoking the **Copy Constructor**.
-* **Line 280:** Calls `display(a3)` proving `a3` has an identical, independent deep copy of `a2`.
+* **Lines 278–280:** Executes `Article a3 = a2;` invoking the **Copy Constructor**. Calls `display(a3)` proving `a3` is an exact, independent deep copy of `a2`.
 
 ```cpp
 Line 282:     cout << "\n4. Destructor:";
@@ -542,14 +600,13 @@ Line 283:     cout << "\n   Objects will be destroyed automatically when functio
 Line 284:     cout << "========================================\n";
 Line 285: }
 ```
-* **Lines 282–285:** Explains that when `demoConstructors()` finishes execution, local objects `a1`, `a2`, and `a3` leave scope, and `~Article()` executes automatically.
+* **Lines 282–285:** Explains that as `demoConstructors()` ends, stack objects `a1`, `a2`, and `a3` go out of scope, automatically triggering `~Article()` destructor cleanup.
 
 ---
 
-### Main Function (Lines 287–327)
+### Part 13: Function 6 — Main Entry Point (`main`) (Lines 287–327)
 
 ```cpp
-Line 287: // Main Function
 Line 288: int main() {
 Line 289:     int choice;
 Line 290:     while (true) {
@@ -566,9 +623,10 @@ Line 300:         cout << "\n6. Exit";
 Line 301:         cout << "\n--------------------------------------------------------";
 Line 302:         cout << "\nEnter choice (1-6): ";
 ```
-* **Line 288:** Application entry point `int main()`.
-* **Line 290 (`while(true)`):** Infinite interactive loop until user selects Option 6.
-* **Lines 291–302:** Prints menu options and prompts for choice.
+* **Line 288 (`int main()`):** Program entry point.
+* **Line 289 (`int choice;`):** Variable storing user's menu selection.
+* **Line 290 (`while(true)`):** Interactive menu loop that continues running until user explicitly chooses Option 6.
+* **Lines 291–302:** Prints visual menu banner and options.
 
 ```cpp
 Line 304:         if (!(cin >> choice)) {
@@ -576,7 +634,7 @@ Line 305:             break;
 Line 306:         }
 Line 307:         cin.ignore();
 ```
-* **Lines 304–307:** Protects against invalid non-numeric input (e.g. letters) by breaking out cleanly instead of looping infinitely.
+* **Lines 304–307:** Input validation check. If user enters non-numeric input (like letters), `cin >> choice` fails and `break` exits safely instead of looping infinitely.
 
 ```cpp
 Line 309:         if (choice == 1) {
@@ -599,12 +657,12 @@ Line 325:     }
 Line 326:     return 0;
 Line 327: }
 ```
-* **Lines 309–324:** Simple, readable `if-else` ladder calling the corresponding function for choices 1 through 5, exiting on 6, and alerting on invalid numbers.
-* **Line 326 (`return 0;`):** Returns exit code 0 to operating system, indicating successful termination.
+* **Lines 309–324:** Simple, readable `if-else` ladder calling the respective function for options 1–5, terminating the loop on option 6, and warning on invalid menu numbers.
+* **Line 326 (`return 0;`):** Returns exit status 0 to operating system, indicating successful execution.
 
 ---
 
-## 5. Viva Examination Guide (Top 10 Questions & Model Answers)
+## 4. Top Viva Examination Questions & Model Answers
 
 ### Q1: What is the main objective of this CA 2 project?
 > **Answer:** "Sir, while CA 1 was an in-memory prototype where data vanished upon closing the program, CA 2 elevates the system to persistent binary file storage using `fstream` so articles survive program restarts. It also demonstrates Unit III object lifecycle management—Default Constructor, Parameterized Constructor with initializer list, Copy Constructor, and Destructor—as well as random-access file positioning using `seekg` (search) and `seekp` (in-place update)."
@@ -641,7 +699,7 @@ Line 327: }
 
 ---
 
-## 6. How to Run the Project
+## 5. How to Run the Project
 
 ### Method 1: 1-Click Double-Click (Easiest)
 * Double-click **`Run_CA2.bat`** in the root folder `c:\Users\Hiii\Desktop\Oops CA\`.
@@ -659,7 +717,7 @@ g++ -std=c++11 -Wall -Wextra src/52_CAP455_CA2_Community_Newspaper_Editorial_Des
 
 ---
 
-## 7. Submission Deliverables Summary
+## 6. Submission Deliverables Summary
 * **C++ Source Code:** `src/52_CAP455_CA2_Community_Newspaper_Editorial_Desk.cpp` (Clean, simplified, 327 lines)
 * **Official Project Report:** `52_CAP455_CA2_Community_Newspaper_Editorial_Desk_Report.pdf` (10 pages, signed by Himanshu Gupta)
 * **Submission Zip:** `52_CAP455_CA2_Community_Newspaper_Editorial_Desk.zip`
